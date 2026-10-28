@@ -1,0 +1,171 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global deny-all safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isUser(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        (request.auth.token.email == 'mihiryadav1100@gmail.com' && request.auth.token.email_verified == true) ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Admins collection
+    match /admins/{adminId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // User profiles
+    match /users/{userId} {
+      allow get: if isUser(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isUser(userId)
+        && incoming().uid == request.auth.uid
+        && incoming().role in ['DONOR', 'RECIPIENT', 'VOLUNTEER']
+        && incoming().status in ['ACTIVE', 'PENDING'];
+      allow update: if (
+        isUser(userId)
+        && incoming().uid == existing().uid
+        && incoming().role == existing().role
+        && incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'phone', 'organizationId', 'updatedAt'])
+      ) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Organizations
+    match /organizations/{orgId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
+      allow create: if isSignedIn()
+        && incoming().type in ['DONOR', 'RECIPIENT']
+        && incoming().verificationStatus in ['PENDING_VERIFICATION', 'VERIFIED']
+        && incoming().country == 'IN';
+      allow update: if isAdmin() || (
+        isSignedIn()
+        && incoming().verificationStatus == existing().verificationStatus
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'name', 'category', 'fssaiNumber', 'registrationNumber',
+          'contactName', 'contactPhone', 'contactEmail',
+          'address', 'city', 'district', 'state', 'pinCode', 'country',
+          'servingCapacity', 'dietaryRequirements', 'updatedAt'
+        ])
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Food Donations
+    match /donations/{donationId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
+      allow create: if isSignedIn()
+        && incoming().donorId == request.auth.uid
+        && incoming().status in ['DRAFT', 'PENDING_REVIEW', 'AVAILABLE']
+        && incoming().country == 'IN'
+        && incoming().safetyDeclarationAccepted == true;
+      allow update: if isAdmin() || (
+        isSignedIn() && (
+          // Donor updating their donation
+          (incoming().donorId == existing().donorId && incoming().diff(existing()).affectedKeys().hasOnly([
+            'foodName', 'description', 'category', 'quantity', 'unit',
+            'estimatedServings', 'dietaryType', 'allergens', 'cookedOrPackedAt',
+            'storageType', 'temperatureCelsius', 'packagingDetails',
+            'earliestCollectionTime', 'latestSafeCollectionDeadline', 'status',
+            'reservedQuantity', 'collectedQuantity', 'deliveredQuantity', 'updatedAt'
+          ])) ||
+          // Recipient or Volunteer updating status/quantities
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'status', 'reservedQuantity', 'collectedQuantity', 'deliveredQuantity', 'updatedAt'
+          ])
+        )
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Reservations
+    match /reservations/{reservationId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
+      allow create: if isSignedIn()
+        && incoming().recipientId == request.auth.uid
+        && incoming().status in ['PENDING', 'ACCEPTED'];
+      allow update: if isSignedIn()
+        && (isAdmin() || incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']));
+      allow delete: if isAdmin();
+    }
+
+    // Pickups and Deliveries
+    match /pickups/{pickupId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn()
+        && (isAdmin() || incoming().diff(existing()).affectedKeys().hasOnly([
+          'status', 'volunteerId', 'volunteerName', 'volunteerPhone',
+          'collectedQuantity', 'deliveredQuantity', 'handoverCode',
+          'assignedAt', 'collectedAt', 'deliveredAt', 'failureReason', 'updatedAt'
+        ]));
+      allow delete: if isAdmin();
+    }
+
+    // Delivery Events (Audit tracking milestones)
+    match /delivery_events/{eventId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
+      allow create: if isSignedIn() && incoming().actorId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // Notifications
+    match /notifications/{notificationId} {
+      allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow list: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn()
+        && resource.data.userId == request.auth.uid
+        && incoming().diff(existing()).affectedKeys().hasOnly(['isRead']);
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // Safety Incidents
+    match /incidents/{incidentId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
+      allow create: if isSignedIn() && incoming().reporterId == request.auth.uid;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Audit Logs
+    match /audit_logs/{logId} {
+      allow get: if isAdmin();
+      allow list: if isAdmin();
+      allow create: if isSignedIn() && incoming().actorId == request.auth.uid;
+      allow update, delete: if false; // Immutable audit trail
+    }
+  }
+}

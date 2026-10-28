@@ -1,0 +1,8 @@
+{
+  "name": "AnnaSetu",
+  "description": "AnnaSetu connects restaurants, hotels, caterers and food donors with verified NGOs and community kitchens to redistribute eligible surplus food across India. Every Meal Find its Way.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

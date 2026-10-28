@@ -1,0 +1,246 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "User profile with role and organization link",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 256 },
+        "displayName": { "type": "string", "maxLength": 128 },
+        "role": { "type": "string", "enum": ["DONOR", "RECIPIENT", "VOLUNTEER", "ADMIN"] },
+        "organizationId": { "type": "string", "maxLength": 128 },
+        "phone": { "type": "string", "maxLength": 20 },
+        "status": { "type": "string", "enum": ["ACTIVE", "SUSPENDED", "PENDING"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role", "status", "createdAt", "updatedAt"]
+    },
+    "Organization": {
+      "title": "Organization",
+      "description": "Food donor business or recipient NGO/community kitchen",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 200 },
+        "type": { "type": "string", "enum": ["DONOR", "RECIPIENT"] },
+        "category": { "type": "string", "maxLength": 100 },
+        "fssaiNumber": { "type": "string", "maxLength": 20 },
+        "registrationNumber": { "type": "string", "maxLength": 100 },
+        "contactName": { "type": "string", "maxLength": 128 },
+        "contactPhone": { "type": "string", "maxLength": 20 },
+        "contactEmail": { "type": "string", "maxLength": 256 },
+        "address": { "type": "string", "maxLength": 300 },
+        "city": { "type": "string", "maxLength": 100 },
+        "district": { "type": "string", "maxLength": 100 },
+        "state": { "type": "string", "maxLength": 100 },
+        "pinCode": { "type": "string", "maxLength": 10 },
+        "country": { "type": "string", "enum": ["IN"] },
+        "lat": { "type": "number" },
+        "lng": { "type": "number" },
+        "verificationStatus": { "type": "string", "enum": ["PENDING_VERIFICATION", "VERIFIED", "REJECTED", "SUSPENDED"] },
+        "servingCapacity": { "type": "number" },
+        "dietaryRequirements": { "type": "string", "maxLength": 200 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "type", "verificationStatus", "city", "state", "pinCode", "country", "createdAt", "updatedAt"]
+    },
+    "Donation": {
+      "title": "Food Donation",
+      "description": "Surplus food donation offering",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "donorId": { "type": "string", "maxLength": 128 },
+        "donorOrgId": { "type": "string", "maxLength": 128 },
+        "donorOrgName": { "type": "string", "maxLength": 200 },
+        "foodName": { "type": "string", "maxLength": 200 },
+        "description": { "type": "string", "maxLength": 1000 },
+        "category": { "type": "string", "enum": ["COOKED_MEALS", "RAW_GROCERY", "PACKAGED_FOOD", "BAKERY", "FRUITS_VEGETABLES"] },
+        "quantity": { "type": "number" },
+        "unit": { "type": "string", "enum": ["KG", "LITRES", "MEAL_TRAYS", "PORTIONS"] },
+        "estimatedServings": { "type": "number" },
+        "dietaryType": { "type": "string", "enum": ["VEG", "NON_VEG", "VEGAN"] },
+        "allergens": { "type": "string", "maxLength": 300 },
+        "cookedOrPackedAt": { "type": "string", "format": "date-time" },
+        "storageType": { "type": "string", "enum": ["ROOM_TEMP", "REFRIGERATED", "HOT_INSULATED", "FROZEN"] },
+        "temperatureCelsius": { "type": "number" },
+        "packagingDetails": { "type": "string", "maxLength": 300 },
+        "address": { "type": "string", "maxLength": 300 },
+        "city": { "type": "string", "maxLength": 100 },
+        "state": { "type": "string", "maxLength": 100 },
+        "pinCode": { "type": "string", "maxLength": 10 },
+        "country": { "type": "string", "enum": ["IN"] },
+        "lat": { "type": "number" },
+        "lng": { "type": "number" },
+        "earliestCollectionTime": { "type": "string", "format": "date-time" },
+        "latestSafeCollectionDeadline": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["DRAFT", "PENDING_REVIEW", "AVAILABLE", "RESERVED", "ACCEPTED", "PICKUP_ASSIGNED", "COLLECTED", "DELIVERED", "REJECTED", "EXPIRED", "CANCELLED", "SAFETY_HOLD"] },
+        "reservedQuantity": { "type": "number" },
+        "collectedQuantity": { "type": "number" },
+        "deliveredQuantity": { "type": "number" },
+        "safetyDeclarationAccepted": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "donorId", "donorOrgId", "foodName", "category", "quantity", "unit", "status", "latestSafeCollectionDeadline", "safetyDeclarationAccepted", "createdAt", "updatedAt"]
+    },
+    "Reservation": {
+      "title": "Donation Reservation",
+      "description": "Reservation of food donation by a recipient NGO",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "donationId": { "type": "string", "maxLength": 128 },
+        "recipientId": { "type": "string", "maxLength": 128 },
+        "recipientOrgId": { "type": "string", "maxLength": 128 },
+        "recipientOrgName": { "type": "string", "maxLength": 200 },
+        "quantity": { "type": "number" },
+        "estimatedServings": { "type": "number" },
+        "status": { "type": "string", "enum": ["PENDING", "ACCEPTED", "EXPIRED", "CANCELLED", "FULFILLED"] },
+        "expiresAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "donationId", "recipientId", "recipientOrgId", "quantity", "status", "expiresAt", "createdAt", "updatedAt"]
+    },
+    "Pickup": {
+      "title": "Pickup and Delivery Assignment",
+      "description": "Logistics assignment for volunteer pickup and handover",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "donationId": { "type": "string", "maxLength": 128 },
+        "reservationId": { "type": "string", "maxLength": 128 },
+        "donorOrgId": { "type": "string", "maxLength": 128 },
+        "donorOrgName": { "type": "string", "maxLength": 200 },
+        "recipientOrgId": { "type": "string", "maxLength": 128 },
+        "recipientOrgName": { "type": "string", "maxLength": 200 },
+        "volunteerId": { "type": "string", "maxLength": 128 },
+        "volunteerName": { "type": "string", "maxLength": 128 },
+        "volunteerPhone": { "type": "string", "maxLength": 20 },
+        "status": { "type": "string", "enum": ["ASSIGNED", "EN_ROUTE_TO_PICKUP", "ARRIVED_AT_PICKUP", "COLLECTED", "EN_ROUTE_TO_RECIPIENT", "ARRIVED_AT_RECIPIENT", "DELIVERED", "CANCELLED", "FAILED_PICKUP"] },
+        "pickupAddress": { "type": "string", "maxLength": 300 },
+        "deliveryAddress": { "type": "string", "maxLength": 300 },
+        "collectedQuantity": { "type": "number" },
+        "deliveredQuantity": { "type": "number" },
+        "handoverCode": { "type": "string", "maxLength": 8 },
+        "assignedAt": { "type": "string", "format": "date-time" },
+        "collectedAt": { "type": "string", "format": "date-time" },
+        "deliveredAt": { "type": "string", "format": "date-time" },
+        "failureReason": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "donationId", "donorOrgId", "recipientOrgId", "status", "createdAt", "updatedAt"]
+    },
+    "DeliveryEvent": {
+      "title": "Delivery Tracking Event",
+      "description": "Audit event for logistics status change",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "pickupId": { "type": "string", "maxLength": 128 },
+        "donationId": { "type": "string", "maxLength": 128 },
+        "status": { "type": "string", "maxLength": 50 },
+        "actorId": { "type": "string", "maxLength": 128 },
+        "actorRole": { "type": "string", "maxLength": 50 },
+        "notes": { "type": "string", "maxLength": 500 },
+        "lat": { "type": "number" },
+        "lng": { "type": "number" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "pickupId", "status", "actorId", "timestamp"]
+    },
+    "Notification": {
+      "title": "In-App Notification",
+      "description": "Persistent transactional notifications",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 150 },
+        "message": { "type": "string", "maxLength": 500 },
+        "type": { "type": "string", "maxLength": 50 },
+        "link": { "type": "string", "maxLength": 200 },
+        "isRead": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "title", "message", "isRead", "createdAt"]
+    },
+    "Incident": {
+      "title": "Safety Incident",
+      "description": "Food safety hold or delivery incident report",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "donationId": { "type": "string", "maxLength": 128 },
+        "reporterId": { "type": "string", "maxLength": 128 },
+        "reporterEmail": { "type": "string", "maxLength": 256 },
+        "reason": { "type": "string", "maxLength": 150 },
+        "description": { "type": "string", "maxLength": 1000 },
+        "status": { "type": "string", "enum": ["OPEN", "INVESTIGATING", "RESOLVED", "DISMISSED"] },
+        "resolutionNotes": { "type": "string", "maxLength": 1000 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "donationId", "reporterId", "reason", "status", "createdAt", "updatedAt"]
+    },
+    "AuditLog": {
+      "title": "System Audit Log",
+      "description": "Immutable security and administrative actions audit trail",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "actorId": { "type": "string", "maxLength": 128 },
+        "actorEmail": { "type": "string", "maxLength": 256 },
+        "action": { "type": "string", "maxLength": 100 },
+        "resourceType": { "type": "string", "maxLength": 50 },
+        "resourceId": { "type": "string", "maxLength": 128 },
+        "details": { "type": "string", "maxLength": 1000 },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "actorId", "action", "resourceType", "resourceId", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile with role assignment"
+    },
+    "/organizations/{organizationId}": {
+      "schema": "Organization",
+      "description": "Organizations registered on the platform"
+    },
+    "/donations/{donationId}": {
+      "schema": "Donation",
+      "description": "Surplus food donations"
+    },
+    "/reservations/{reservationId}": {
+      "schema": "Reservation",
+      "description": "Donation reservations by recipients"
+    },
+    "/pickups/{pickupId}": {
+      "schema": "Pickup",
+      "description": "Logistics pickup and delivery coordination"
+    },
+    "/delivery_events/{eventId}": {
+      "schema": "DeliveryEvent",
+      "description": "Logistics tracking milestones"
+    },
+    "/notifications/{notificationId}": {
+      "schema": "Notification",
+      "description": "Transactional user notifications"
+    },
+    "/incidents/{incidentId}": {
+      "schema": "Incident",
+      "description": "Safety incidents and holds"
+    },
+    "/audit_logs/{logId}": {
+      "schema": "AuditLog",
+      "description": "Immutable administrative audit events"
+    }
+  }
+}

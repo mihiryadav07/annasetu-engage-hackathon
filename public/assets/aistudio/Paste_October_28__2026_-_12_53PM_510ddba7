@@ -1,0 +1,529 @@
+Build a full-stack application named AnnaSetu with the tagline “Every Meal Finds Its Way.”
+
+AnnaSetu connects restaurants, hotels, caterers and other food donors with verified NGOs and community kitchens to redistribute eligible surplus food through coordinated pickups and verified deliveries in India.
+
+This must become a real, deployable application, not a mockup, static prototype or collection of non-functional screens.
+
+Technology
+
+Use the existing Google AI Studio Build environment and its supported React + TypeScript frontend, Node.js server runtime, Firebase Authentication, Cloud Firestore and Google Cloud deployment capabilities.
+
+Use Firebase Storage for private documents only if required and configured. Use Google Maps Platform for real geographic features once credentials and APIs are configured.
+
+Inspect the current project before making changes. Establish a maintainable architecture with:
+
+* Frontend components and routes.
+* Typed data models and schema validation.
+* Server-side API handlers.
+* Business logic and service modules.
+* Firestore data access.
+* Authentication and authorization middleware.
+* Centralized error handling.
+* Automated tests.
+* Environment configuration and setup documentation.
+
+Backend modules
+
+Plan separate modules for:
+
+1. Authentication and authorization.
+2. User and organization profiles.
+3. Organization verification.
+4. Food donations and safety eligibility.
+5. Recipient matching and quantity reservations.
+6. Volunteer assignment.
+7. Pickup and delivery tracking.
+8. Indian address validation and maps.
+9. Notifications and communication.
+10. Administrative review and incident management.
+11. Audit events and analytics.
+
+Data model
+
+Design the Firestore collections and relationships for users, organizations, verification applications, donations, recipient requirements, reservations, pickup assignments, delivery events, notifications, conversations, incidents and audit records.
+
+Use stable identifiers, timestamps, explicit ownership and server-validated state transitions. Document indexes and security rules. Avoid duplicated authoritative data and unnecessary personal information.
+
+Engineering requirements
+
+* Keep privileged business operations on the server.
+* Validate request bodies and parameters using typed schemas.
+* Use authenticated and authorized operations.
+* Protect database writes from concurrent updates and duplicate requests.
+* Keep secrets in supported server-side environment configuration.
+* Never hardcode successful authentication, GPS, database writes or deliveries.
+* Provide useful errors and loading states.
+* Keep the application buildable after each stage.
+* Preserve existing working features when modifying the project.
+
+India-only requirement
+
+All operational addresses and pickup and delivery destinations must be within India. Validate trusted address and geocoding results, not just user-entered text. Reject out-of-country destinations on the backend.
+
+Initial deliverable
+
+First inspect the project and create the application skeleton, backend architecture, database schema plan, API contract, configuration checklist and test strategy. Implement the basic foundation and ask me to complete any required Firebase setup.
+
+Do not spend time on elaborate branding, animations or visual polish yet. Prioritize a sound, testable backend and a minimal usable frontend.
+Continue the existing AnnaSetu project. Implement real authentication, organization registration, role-based authorization and verification.
+
+Use Firebase Authentication and the existing backend architecture. Do not recreate the project or replace working components.
+
+User roles
+
+Implement DONOR, RECIPIENT, VOLUNTEER and ADMIN roles.
+
+* DONOR: food businesses publishing surplus donations.
+* RECIPIENT: verified NGOs and community kitchens.
+* VOLUNTEER: authorized people completing pickups and deliveries.
+* ADMIN: explicitly authorized platform administrators.
+
+Public registration must never grant administrator privileges.
+
+Authentication
+
+Implement Google Sign-In, persistent authenticated sessions, sign-out and useful error handling. If additional authentication methods are introduced, configure them through a real provider.
+
+Organization onboarding
+
+Collect appropriate organization names, contact information, organization type, Indian operating address, state, district, city, PIN code and relevant verification information.
+
+Donors must provide applicable food-business registration information, including FSSAI details where relevant. NGOs must provide relevant registration information, service capacity and food requirements. Volunteers must provide appropriate contact details, operating area and availability.
+
+Do not expose private verification documents or personal information to other users.
+
+Verification
+
+New organizations begin as PENDING_VERIFICATION. Only authorized administrators can approve, reject or request corrections.
+
+Prevent unverified organizations from publishing or accepting live donations. Validate verification status on every relevant backend operation, not only in the frontend.
+
+Authorization
+
+Enforce identity, role, ownership, organization status and resource permissions in backend handlers. Configure Firestore Security Rules for direct client access. Remember that privileged server SDK operations bypass Firestore Security Rules and therefore require independent authorization checks.
+
+Protect against forged roles, modified request bodies, insecure direct object references, privilege escalation and unauthorized access through direct URLs or API calls.
+
+Add rate limiting to sensitive operations where appropriate, safe error messages, access revocation and audit events for administrative actions.
+
+Tests
+
+Test registration, sign-in, sign-out, session restoration, pending verification, suspended accounts, unauthorized data access and attempts to grant administrator permissions.
+
+Do not mark authentication or security complete until the relevant tests pass.
+Continue AnnaSetu and implement the complete backend food-donation lifecycle with real Firestore persistence.
+
+Donation form and API
+
+Allow verified donor organizations to create and manage donations with:
+
+* Food name, description and category.
+* Quantity and unit.
+* Estimated servings where applicable.
+* Vegetarian/non-vegetarian classification.
+* Known allergens and cross-contact information.
+* Preparation and packing timestamps.
+* Storage method and recorded temperature conditions where relevant.
+* Packaging and handling declarations.
+* Collection address and instructions.
+* Earliest collection time and latest safe collection deadline.
+* Applicable food-safety declarations.
+
+Validate all fields on the server. Reject invalid quantities, missing mandatory information and invalid or expired deadlines.
+
+Safety eligibility
+
+Implement configurable food-safety eligibility rules reviewed against applicable Indian requirements. Consider food type, preparation time, storage conditions, transport conditions, known contamination and the declared collection deadline.
+
+Do not claim that a donor declaration or an automated algorithm certifies food as safe. Use explicit states such as PENDING_REVIEW, ELIGIBLE_FOR_MATCHING and SAFETY_HOLD.
+
+Prevent expired, reported unsafe or ineligible food from being matched. Create an incident workflow to suspend affected donations and record review and resolution events.
+
+Lifecycle
+
+Implement validated transitions between:
+DRAFT, PENDING_REVIEW, AVAILABLE, RESERVED, ACCEPTED, PICKUP_ASSIGNED, COLLECTED and DELIVERED.
+
+Also support REJECTED, EXPIRED, CANCELLED and appropriate exception states such as FAILED_PICKUP and SAFETY_HOLD.
+
+Do not permit arbitrary state changes. Use server-side validation and transactions where needed.
+
+Quantity integrity
+
+Track total quantity, reserved quantity, collected quantity, delivered quantity and remaining available quantity using explicit units.
+
+Prevent overselling, duplicate reservations and invalid delivery quantities. Support partial allocation and partial delivery if implemented, with documented rules.
+
+Make retried operations safe and prevent duplicate events.
+
+Donor features
+
+Implement create, edit, draft, publish, cancel, list, filter and history operations. Allow editing only when permitted by the current lifecycle state.
+
+Persist every successful change and return accurate error responses when an operation fails.
+
+Verification
+
+Test valid and invalid submissions, deadlines, safety holds, concurrent acceptance, quantity limits, cancellations, partial allocations and persistence after refresh.
+
+Use actual database records throughout. Do not use mock responses as proof of functionality.
+Continue the AnnaSetu codebase and implement the recipient matching engine and reservation APIs.
+
+Eligibility
+
+Consider only verified recipients and currently available donations that have passed configured eligibility checks, have not expired and are not on safety hold.
+
+Evaluate:
+
+* Geographic distance and service area.
+* Food category and dietary requirements.
+* Known allergens and restrictions.
+* Quantity and meal-serving capacity.
+* Pickup hours and availability.
+* Transport capacity.
+* Collection deadline and estimated travel feasibility.
+* Current workload and outstanding reservations.
+
+Hard eligibility constraints must take priority over ranking scores. Never match food to an incompatible recipient simply because it is nearby.
+
+Matching algorithm
+
+Implement a documented, deterministic ranking function with configurable weights for distance, urgency, capacity, compatibility and pickup feasibility.
+
+Use actual stored coordinates and actual routing results when available. Label straight-line distance as such when road-routing data is unavailable.
+
+Explain the ranking factors for each suggested match. Do not use generative AI guesses for safety eligibility, coordinates or organization verification.
+
+Reservation
+
+Implement authenticated acceptance and decline operations.
+
+Before accepting, recheck eligibility, remaining quantity, expiry, recipient capacity and current reservation state. Use Firestore transactions or equivalent concurrency-safe logic so concurrent requests cannot reserve the same quantity.
+
+Implement a server-enforced reservation expiration mechanism using a supported scheduled backend process, or an equally reliable server-side expiry mechanism. Release expired reservations safely and idempotently.
+
+Prevent duplicate acceptance, conflicting reservations and invalid state transitions.
+
+Recipient operations
+
+Implement eligible-offer discovery, search, filters, donation details, acceptance, decline, accepted donations, pickup history and recipient capacity settings.
+
+Return real results with pagination and appropriate empty states.
+
+Tests
+
+Test incompatible food, zero remaining quantity, expired donations, safety holds, unverified recipients, insufficient capacity, concurrent acceptance and reservation expiry.
+
+Report test results and fix failures before proceeding.
+Continue AnnaSetu without replacing working backend modules. Implement real Indian address validation, GPS integration, road routing and pickup/delivery tracking.
+
+Maps integration
+
+Integrate Google Maps Platform using the required supported APIs:
+
+* Maps JavaScript API.
+* Places API for address search.
+* Geocoding API where needed.
+* Routes API for road routes and travel estimates.
+
+Request only necessary permissions. Keep server credentials private and restrict browser keys to approved origins and APIs. Ask me to configure missing credentials and billing rather than inventing routes or locations.
+
+India-only validation
+
+Validate addresses and coordinates on the backend using trusted geocoding results and country identifiers. Support Indian states, union territories, cities, districts and PIN codes.
+
+Reject out-of-country donation origins, recipient destinations, pickup addresses and delivery destinations. Validate the address and its coordinates together. Do not silently substitute an invalid address with a nearby location.
+
+Use real GPS readings only when a user grants browser permission. Provide manual address entry if permission is denied.
+
+Location privacy
+
+Request location access after a clear user action. Show location permission status, timestamp of the last update and available accuracy information.
+
+Do not silently track users or claim continuous tracking when only a single position is available. Limit collection, access and retention of volunteer location data.
+
+Only authorized participants may access operational pickup locations.
+
+Pickup and delivery workflow
+
+Implement validated pickup events such as:
+ASSIGNED, EN_ROUTE_TO_PICKUP, ARRIVED_AT_PICKUP, COLLECTED, EN_ROUTE_TO_RECIPIENT, ARRIVED_AT_RECIPIENT and DELIVERED.
+
+Include documented cancellation, delay, rejection and failed-pickup paths.
+
+Store each event with server timestamp, actor, pickup ID and relevant details. Do not permit unauthorized users to skip required transitions.
+
+Delivery confirmation
+
+At collection, record an authorized handover and collected quantity. At delivery, require recipient confirmation or a securely generated, expiring, single-use handover code.
+
+Validate codes on the backend with retry limits and duplicate-submission protection. Record delivered quantity, rejected quantity and discrepancies.
+
+GPS proximity is supporting evidence, not proof of delivery.
+
+Failure handling
+
+Handle denied GPS permission, stale positions, unavailable maps, invalid addresses, missing credentials and routing failures without breaking other application functions.
+
+Never fabricate coordinates, live locations or ETAs.
+
+Tests
+
+Test valid Indian addresses, out-of-country destinations, GPS denial, stale locations, route failures, unauthorized tracking, invalid state transitions, duplicate codes and partial deliveries.
+Continue AnnaSetu and implement volunteer operations, persistent notifications and secure pickup coordination.
+
+Volunteer operations
+
+Create backend operations to discover eligible pickup opportunities, accept assignments, view assigned pickups, update pickup status and view completed deliveries.
+
+Consider availability, location, transport capacity, carrying requirements and pickup deadlines when assigning volunteers.
+
+Prevent conflicting assignments. Require backend authorization and revalidate the donation and assignment before every state transition.
+
+Notifications
+
+Create persistent, database-backed in-app notifications for:
+
+* New eligible donations.
+* Recipient acceptance.
+* Pickup assignment.
+* Volunteer acceptance.
+* Upcoming deadlines.
+* Collection and delivery confirmations.
+* Delays, cancellations and failed pickups.
+* Verification decisions and safety incidents.
+
+Notify only relevant, authorized users. Prevent duplicate notifications when events or requests are retried.
+
+Use reliable backend event handling or an equivalent transactional notification pattern so notifications do not falsely report failed operations as successful.
+
+Communication
+
+Implement donation-specific messaging only for authorized participants. Enforce conversation membership on every read and write.
+
+Add report-issue and contact-support workflows with persistent records, timestamps and resolution states.
+
+Email or push notifications may be added where configured, but missing external providers must not be concealed by fake success messages.
+
+Verification
+
+Test assignment conflicts, unavailable volunteers, revoked permissions, duplicate notifications, cancelled donations and failed delivery workflows. Ensure all records persist in Firestore.
+Continue the existing AnnaSetu application. Implement a secure administration backend and data-driven dashboard.
+
+Administrator controls
+
+Allow only explicitly authorized administrators to access protected operations.
+
+Implement organization verification, application rejection, requests for corrections, account suspension, reinstatement, safety incident management and dispute resolution.
+
+Protect private documents and verification records with appropriate storage permissions and access controls.
+
+Safety incidents
+
+Allow authorized reviewers to place donations on hold, stop affected matching and allocation, investigate reported issues and record resolution decisions.
+
+Maintain a traceable history of incident actions. Do not erase historical events when a donation's status changes.
+
+Audit events
+
+Record important business and administrative events with actor, action, affected resource, server timestamp and appropriate metadata.
+
+Protect audit records from unauthorized modification. Avoid storing passwords, secret tokens or unnecessary sensitive information in logs.
+
+Analytics
+
+Calculate metrics from persisted business records:
+
+* Food offered, reserved, collected and delivered.
+* Pending, expired and cancelled donations.
+* Successful pickup and delivery rates.
+* Acceptance and delivery times.
+* Participating verified organizations.
+* Volunteer participation.
+* Geographic distribution of completed deliveries.
+* Safety incidents and unresolved reports.
+
+Use consistent quantity units. Do not combine kilograms, litres and meal counts into one total.
+
+Distinguish verified measurements from estimates. Document the methodology for any estimated meals or waste avoided.
+
+Verification
+
+Test administrator authorization, unauthorized document access, suspended accounts, safety holds, audit integrity and analytics accuracy. No dashboard metric may be hardcoded and presented as a real result.
+Build the complete responsive AnnaSetu frontend and integrate it with the actual backend modules already implemented.
+
+Do not replace working APIs or substitute mock data for real database records. Inspect existing routes, services and authentication before making changes.
+
+Brand and visual design
+
+Product: AnnaSetu.
+Tagline: “Every Meal Finds Its Way.”
+
+Create a polished, modern, trustworthy Indian social-impact platform using warm ivory, forest green and restrained saffron accents. Use an original bridge-and-leaf or connected-meal logo, consistent icons, readable typography, rounded cards and subtle animations.
+
+Avoid clutter, excessive gradients, fake partner logos and invented impact statistics.
+
+Responsive behavior
+
+Support small phones starting at approximately 320px, modern Android and iPhone screens, tablets and laptops at 1366px and 1440px widths.
+
+Use mobile-friendly navigation, appropriately sized touch targets, responsive forms, stacked cards on narrow screens and accessible desktop sidebars.
+
+Prevent horizontal overflow and clipped dialogs. Ensure maps and tracking controls remain usable on mobile.
+
+Public pages
+
+Implement:
+
+* Home.
+* How It Works.
+* For Food Donors.
+* For NGOs and Community Kitchens.
+* For Volunteers.
+* Food Safety.
+* About.
+* Contact and Support.
+* Privacy Policy and Terms.
+
+Provide working registration and sign-in actions.
+
+Donor interface
+
+Implement onboarding, verification status, create/edit donation forms, drafts, published donations, donation details, matching status, pickup progress, cancellation and donation history.
+
+Recipient interface
+
+Implement verification status, eligible nearby offers, filters, donation details, acceptance and decline, pickup tracking, capacity settings and completed donation history.
+
+Volunteer interface
+
+Implement available assignments, assigned pickups, route information, pickup and delivery actions, authorized location sharing, handover confirmation and completed assignments.
+
+Administrator interface
+
+Implement verification queues, organization details, donation management, safety incidents, assignment oversight, dispute resolution, audit records and analytics.
+
+Real backend integration
+
+Use the existing authenticated API and service modules. Implement real loading, success, error and empty states. Reflect persisted status changes after every operation.
+
+Every button, form, filter, dialog and navigation item must perform its intended action. Remove dead controls and fake success messages.
+
+Never expose privileged data or bypass backend authorization to make a screen work.
+
+Accessibility and quality
+
+Use semantic HTML, keyboard navigation, visible focus indicators, accessible form labels, sufficient contrast and reduced-motion support.
+
+Test layouts at 320px, 375px, 768px, 1024px, 1366px and 1440px. Fix broken navigation, runtime errors, layout overflow and failed API integrations.
+
+The finished frontend must be a usable interface to the real AnnaSetu system, not a collection of static mockups.
+Perform a comprehensive engineering audit of AnnaSetu. Do not redesign the application or add superficial features during this stage.
+
+1. Build verification
+
+Run the production build and available tests. Resolve TypeScript errors, broken imports, runtime exceptions, failed requests, incorrect queries and configuration errors.
+
+2. Automated testing
+
+Create or update:
+
+* Unit tests for donation eligibility, matching, quantity calculations and state transitions.
+* API integration tests for authentication, authorization, database writes and invalid requests.
+* Firestore Security Rules tests.
+* Concurrency tests for simultaneous reservations.
+* End-to-end tests for the complete donor-to-recipient-to-volunteer-to-delivery workflow.
+* Responsive frontend and critical navigation tests.
+
+Use Firebase Emulator Suite where appropriate and an isolated integration environment for services not supported by the emulator.
+
+3. Required scenarios
+
+Test successful workflows and failure cases, including:
+
+* Unverified organizations attempting restricted operations.
+* Unauthorized access to another organization's records.
+* Duplicate and concurrent reservation requests.
+* Expired donations and safety holds.
+* Invalid quantities and partial deliveries.
+* Unauthorized pickup status updates.
+* Expired or reused handover codes.
+* Invalid or out-of-country destinations.
+* Denied GPS permission and unavailable Maps APIs.
+* Failed database writes and duplicate notifications.
+* Unauthorized administrator actions.
+* Mobile layout overflow and broken forms.
+
+4. Security review
+
+Review all privileged server endpoints, Firestore rules, storage permissions, API keys, input validation, rate limits and ownership checks.
+
+Verify that private documents, location histories, contact information and administrative records cannot be accessed by unauthorized users.
+
+Use least-privilege access and avoid exposing sensitive information in logs.
+
+5. Data integrity
+
+Verify that quantity totals remain consistent, transactions cannot be oversold, retries do not create duplicate business events, and analytics are derived from actual persisted records.
+
+6. Fix and rerun
+
+Fix confirmed defects and rerun the relevant tests. Do not hide failures using hardcoded data or mocked success responses.
+
+Produce a report containing:
+
+* Build status.
+* Tests executed and actual pass/fail counts.
+* Security findings and fixes.
+* Unresolved defects.
+* Tests not run and why.
+* External configuration requirements.
+* Remaining release blockers.
+
+Label anything untested as NOT TESTED. Do not declare the application production-ready solely because the frontend renders or the build succeeds.
+Prepare the verified AnnaSetu application for deployment and provide a complete engineering handover.
+
+Do not claim that deployment succeeded unless the deployment command or hosting environment confirms success.
+
+Deployment
+
+Use a supported Google Cloud Run deployment path for the Node.js server and frontend architecture, or the existing supported deployment mechanism if the project has a different valid configuration.
+
+Configure:
+
+* Production environment variables and server-side secrets.
+* Firebase Authentication and authorized domains.
+* Firestore database and security rules.
+* Required indexes.
+* Google Maps API keys, restrictions and enabled APIs.
+* CORS and trusted origins where applicable.
+* Logging, error monitoring and health checks.
+* Appropriate access permissions.
+* Billing and service quotas.
+* Backup and recovery arrangements appropriate to the deployment.
+
+Keep test and production environments separate. Never deploy test users, test donations or fake impact metrics as genuine production activity.
+
+Operational readiness
+
+Document:
+
+* How to configure the application from a clean environment.
+* How to initialize Firebase.
+* How to create the first authorized administrator securely.
+* How to configure Maps credentials.
+* How to run tests.
+* How to build and deploy.
+* How to inspect logs and diagnose failures.
+* How to back up and recover data.
+* How to handle security incidents and food-safety reports.
+
+Final verification
+
+Verify the deployed application's health, authentication, database access, critical API operations, role permissions and primary donor-to-delivery workflow.
+
+Clearly distinguish features that are fully tested, configured but untested, blocked by credentials and not yet implemented.
+
+Provide the actual deployed URL only when deployment has succeeded and the URL is available. If deployment is blocked, provide the exact remaining steps.
+
+Do not report the application as production-ready until its critical functionality, security controls and deployment have been verified.
